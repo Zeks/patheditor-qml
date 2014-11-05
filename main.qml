@@ -125,7 +125,6 @@ ApplicationWindow {
                             return -1;
                         return 1;
                     }
-                    Logic.loadItems(rotationModel)
                     lvCombinations.modelReady()
                 }
 
@@ -137,9 +136,12 @@ ApplicationWindow {
                 anchors.left: btnToggle.right
                 anchors.top: parent.top
                 editable: true
-                Connections {
-                    target: lvCombinations
-                    onModelReady: {cbCombinations.model = rotationModel}
+                onCurrentTextChanged:
+                {
+                    Logic.setGroup()
+                }
+                Component.onCompleted: {
+                    Logic.loadItems()
                 }
             }
 

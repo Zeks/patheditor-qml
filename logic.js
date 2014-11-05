@@ -1,7 +1,7 @@
 /* This script file handles the game logic */
 //.pragma library
 .import QtQuick.LocalStorage 2.0 as Sql
-function saveItems(rotationModel) {
+function saveItems() {
     var db = Sql.LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
     console.log(db)
     db.transaction(
@@ -24,19 +24,41 @@ function saveItems(rotationModel) {
                 )
 }
 
-function loadItems(rotationModel) {
+function loadItems() {
     var db = Sql.LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
     console.log(db)
     db.transaction(
                 function(tx) {
                     // Create the database if it doesn't already exist
                     tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
-                    var rs = tx.executeSql('Select * from ROTATIONSETS')
+                    var rs = tx.executeSql('Select setname from ROTATIONSETS')
+                    var groups = []
                     for(var i = 0; i < rs.rows.length; i++)
                     {
+//                        rotationModel.append({"text": rs.rows.item(i).setname, "addValue":rs.rows.item(i).setoperation, "value":rs.rows.item(i).setfolder})
+                        if(groups.indexOf(rs.rows.item(i).setname) == -1)
+                            groups.push(rs.rows.item(i).setname);
+                    }
+                    cbCombinations.model = groups
+                }
+                )
+
+}
+function setGroup()
+{
+    console.log("slot fired")
+    rotationModel.clear();
+    var db = Sql.LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
+    db.transaction(
+                function(tx) {
+                    // Create the database if it doesn't already exist
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
+                    var rs = tx.executeSql('Select * from ROTATIONSETS where setname = ?', cbCombinations.currentText)
+                    for(var i = 0; i < rs.rows.length; i++)
+                    {
+                        console.log("adding ", rs.rows.item(i).setfolder)
                         rotationModel.append({"text": rs.rows.item(i).setname, "addValue":rs.rows.item(i).setoperation, "value":rs.rows.item(i).setfolder})
                     }
                 }
                 )
-
 }
