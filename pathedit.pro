@@ -16,3 +16,5 @@ HEADERS += \
     systemaccessor.h
 
 QMAKE_CXXFLAGS += -std=c++11 -fpermissive
+
+OTHER_FILES +=

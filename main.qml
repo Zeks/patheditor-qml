@@ -2,6 +2,7 @@ import QtQuick 2.3
 import QtQuick.Controls 1.2
 import com.sysgetter 1.0
 import QtQuick.LocalStorage 2.0
+import "qrc:/logic.js" as Logic
 
 ApplicationWindow {
     id: applicationWindow1
@@ -99,39 +100,24 @@ ApplicationWindow {
             anchors.top: rectangle1.bottom
             anchors.topMargin: 1
 
+            RotationC
+            {
+                id:rotationDelegate
+            }
+
             ListView {
                 id: lvCombinations
                 anchors.right: parent.right
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
                 anchors.top: cbCombinations.bottom
-                //anchors.fill: parent
                 model: rotationModel
+                spacing: 2
                 delegate: rotationDelegate
                 signal modelReady
                 Component.onDestruction:
                 {
-                    var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
-                    console.log(db)
-                    db.transaction(
-                                function(tx) {
-                                    // Create the database if it doesn't already exist
-                                    tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
-                                    console.log(rotationModel.count)
-                                    for(var i = 0; i < rotationModel.count; i++)
-                                    {
-                                        var exists = tx.executeSql('Select * from ROTATIONSETS where setname = ? and setoperation = ? and setfolder = ?',
-                                                                   [rotationModel.get(i).text, rotationModel.get(i).addValue, rotationModel.get(i).value]);
-                                        console.log(exists.rows)
-                                        if(exists.rows.length === 0)
-                                        {
-                                            tx.executeSql('INSERT INTO ROTATIONSETS VALUES(?, ?, ?)',
-                                                          [rotationModel.get(i).text, rotationModel.get(i).addValue, rotationModel.get(i).value]);
-                                        }
-                                    }
-                                }
-                                )
-
+                    Logic.saveItems(rotationModel)
                 }
                 Component.onCompleted: {
                     function compare(a,b) {
@@ -139,26 +125,10 @@ ApplicationWindow {
                             return -1;
                         return 1;
                     }
-                    elements.sort(compare)
-
-                    var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
-                    console.log(db)
-                    db.transaction(
-                                function(tx) {
-                                    // Create the database if it doesn't already exist
-                                    tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
-                                    var rs = tx.executeSql('Select * from ROTATIONSETS')
-                                    for(var i = 0; i < rs.rows.length; i++)
-                                    {
-                                        rotationModel.append({"text": rs.rows.item(i).setname, "addValue":rs.rows.item(i).setoperation, "value":rs.rows.item(i).setfolder})
-                                    }
-                                }
-                                )
-
-
-
+                    Logic.loadItems(rotationModel)
                     lvCombinations.modelReady()
                 }
+
             }
 
             ComboBox {
@@ -180,6 +150,9 @@ ApplicationWindow {
                 anchors.topMargin: 0
                 anchors.left: parent.left
                 anchors.leftMargin: 0
+                onClicked: rotationModel.append({text: cbCombinations.currentText,
+                                                    addValue:1,
+                                                    value: ""})
             }
 
             Button {
@@ -203,67 +176,6 @@ ApplicationWindow {
             }
             ListModel {
                 id: rotationModel
-            }
-
-            //            ListElement {
-            //                text: "test"
-            //                addValue: true
-            //                value: "K:;"
-            //            }
-            //            ListElement {
-            //                text: "test"
-            //                addValue: false
-            //                value: "K:;"
-            //            }
-            //            ListElement {
-            //                text: "test"
-            //                addValue: true
-            //                value: "K:;"
-            //            }
-            Component {
-                id: rotationDelegate
-                Row
-                {
-                    spacing: 2
-                    Rectangle {
-                        id: indicator
-                        height:20
-                        width: 5
-                        color: addValue ? "lightGreen" : "pink"
-                    }
-                    Rectangle {
-                        height:20
-                        //color: Qt.lighter("lightGreen")
-                        //color: "lightGreen"
-                        //width:txt.width
-                        width: 500
-                        Text {
-                            id:txt
-                            x:5
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: value
-
-                        }
-                    }
-                }
-            }
-            Component {
-                id: numberDelegate
-
-                Rectangle {
-                    width: 40
-                    height: 40
-
-                    color: "lightGreen"
-
-                    Text {
-                        anchors.centerIn: parent
-
-                        font.pixelSize: 10
-
-                        text: index
-                    }
-                }
             }
         }
 
