@@ -1,6 +1,7 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import com.sysgetter 1.0
+import QtQuick.LocalStorage 2.0
 
 ApplicationWindow {
     id: applicationWindow1
@@ -26,23 +27,6 @@ ApplicationWindow {
         }
 
     }
-
-
-    //            ListElement {
-    //                text: "test"
-    //                addValue: true
-    //                value: "K:;"
-    //            }
-    //            ListElement {
-    //                text: "test"
-    //                addValue: false
-    //                value: "K:;"
-    //            }
-    //            ListElement {
-    //                text: "test"
-    //                addValue: true
-    //                value: "K:;"
-    //            }
 
     SplitView {
         id: splitView1
@@ -125,26 +109,56 @@ ApplicationWindow {
                 model: rotationModel
                 delegate: rotationDelegate
                 signal modelReady
+                Component.onDestruction:
+                {
+                    var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
+                    console.log(db)
+                    db.transaction(
+                                function(tx) {
+                                    // Create the database if it doesn't already exist
+                                    tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
+                                    console.log(rotationModel.count)
+                                    for(var i = 0; i < rotationModel.count; i++)
+                                    {
+                                        var exists = tx.executeSql('Select * from ROTATIONSETS where setname = ? and setoperation = ? and setfolder = ?',
+                                                                   [rotationModel.get(i).text, rotationModel.get(i).addValue, rotationModel.get(i).value]);
+                                        console.log(exists.rows)
+                                        if(exists.rows.length === 0)
+                                        {
+                                            tx.executeSql('INSERT INTO ROTATIONSETS VALUES(?, ?, ?)',
+                                                          [rotationModel.get(i).text, rotationModel.get(i).addValue, rotationModel.get(i).value]);
+                                        }
+                                    }
+                                }
+                                )
+
+                }
                 Component.onCompleted: {
-
-                    var elements = [{"text": "test", "addValue":true, "value":"C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live"},
-                                    {"text": "test", "addValue":false, "value":"D:;"},
-                                    {"text": "test", "addValue":true, "value":"F:;"}
-                            ]
-
                     function compare(a,b) {
-                      if (a.addValue > b.addValue)
-                         return -1;
-                      return 1;
+                        if (a.addValue > b.addValue)
+                            return -1;
+                        return 1;
                     }
                     elements.sort(compare)
 
-                    for(var element in elements)
-                    {
-                        rotationModel.append(elements[element])
-                    }
+                    var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
+                    console.log(db)
+                    db.transaction(
+                                function(tx) {
+                                    // Create the database if it doesn't already exist
+                                    tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
+                                    var rs = tx.executeSql('Select * from ROTATIONSETS')
+                                    for(var i = 0; i < rs.rows.length; i++)
+                                    {
+                                        rotationModel.append({"text": rs.rows.item(i).setname, "addValue":rs.rows.item(i).setoperation, "value":rs.rows.item(i).setfolder})
+                                    }
+                                }
+                                )
+
+
+
                     lvCombinations.modelReady()
-                   }
+                }
             }
 
             ComboBox {
@@ -191,21 +205,21 @@ ApplicationWindow {
                 id: rotationModel
             }
 
-//            ListElement {
-//                text: "test"
-//                addValue: true
-//                value: "K:;"
-//            }
-//            ListElement {
-//                text: "test"
-//                addValue: false
-//                value: "K:;"
-//            }
-//            ListElement {
-//                text: "test"
-//                addValue: true
-//                value: "K:;"
-//            }
+            //            ListElement {
+            //                text: "test"
+            //                addValue: true
+            //                value: "K:;"
+            //            }
+            //            ListElement {
+            //                text: "test"
+            //                addValue: false
+            //                value: "K:;"
+            //            }
+            //            ListElement {
+            //                text: "test"
+            //                addValue: true
+            //                value: "K:;"
+            //            }
             Component {
                 id: rotationDelegate
                 Row
@@ -234,23 +248,23 @@ ApplicationWindow {
                 }
             }
             Component {
-                   id: numberDelegate
+                id: numberDelegate
 
-                   Rectangle {
-                       width: 40
-                       height: 40
+                Rectangle {
+                    width: 40
+                    height: 40
 
-                       color: "lightGreen"
+                    color: "lightGreen"
 
-                       Text {
-                           anchors.centerIn: parent
+                    Text {
+                        anchors.centerIn: parent
 
-                           font.pixelSize: 10
+                        font.pixelSize: 10
 
-                           text: index
-                       }
-                   }
-               }
+                        text: index
+                    }
+                }
+            }
         }
 
 
