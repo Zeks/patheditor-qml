@@ -40,9 +40,9 @@ public:
         return QString();
     }
 
-    Q_INVOKABLE void set_environment(QQuickTextDocument* doc)
+    Q_INVOKABLE void set_environment(QString value)
     {
-        QString value = doc->textDocument()->toPlainText().trimmed().replace("\n", ";");
+        //QString value = doc->textDocument()->toPlainText().trimmed().replace("\n", ";");
         QSettings excelSettings("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Session Manager\\Environment", QSettings::NativeFormat);
         qDebug() << "writing: " << value;
         excelSettings.setValue("PATH", value);

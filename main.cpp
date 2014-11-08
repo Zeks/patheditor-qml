@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<SystemAccessor>("com.sysgetter", 1, 0, "SystemAccessor");
     QQmlApplicationEngine engine;
-    engine.setOfflineStoragePath("K:\\Programming\\pathedit");
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();

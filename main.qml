@@ -19,12 +19,15 @@ ApplicationWindow {
         id: buttonSavePath
         text: qsTr("Save PATH")
         z: 1
+//        height:90
+//        width:90
+        iconSource: "qrc:/save.png"
         anchors.top: parent.top
         anchors.topMargin: 0
         anchors.left: parent.left
         anchors.leftMargin: 0
         onClicked: {
-            accessor.set_environment(pathEdit.textDocument);
+            accessor.set_environment(Logic.createNewEnvironment());
         }
 
     }
@@ -54,6 +57,9 @@ ApplicationWindow {
             border.color: "black"
 
             ListView {
+                displaced: Transition {
+                    NumberAnimation { properties: "x,y"; easing.type: Easing.OutQuad }
+                }
                 id: lvPath
                 anchors.right: parent.right
                 anchors.rightMargin: 0
@@ -65,6 +71,7 @@ ApplicationWindow {
                 anchors.topMargin: 0
                 model: visualModel
                 spacing: 2
+                clip:true
                 //delegate: pathDelegate
                 Component.onCompleted: {
                     Logic.collectPATH()
@@ -117,10 +124,7 @@ ApplicationWindow {
             {
                 id:rotationDelegate
             }
-            PathDelegate
-            {
-                id:pathDelegate
-            }
+
             ListView {
                 id: lvCombinations
                 anchors.right: parent.right
@@ -149,7 +153,7 @@ ApplicationWindow {
             ComboBox {
                 id: cbCombinations
                 height: btnAdd.height
-                anchors.left: btnToggle.right
+                anchors.left: btnRemove.right
                 anchors.top: parent.top
                 editable: true
                 onCurrentTextChanged:
@@ -160,14 +164,26 @@ ApplicationWindow {
                     Logic.loadItems()
                 }
             }
-
             Button {
-                id: btnAdd
-                text: "Add"
+                id: btnPass
+                //text: "Apply group"
                 anchors.top: parent.top
                 anchors.topMargin: 0
                 anchors.left: parent.left
                 anchors.leftMargin: 0
+                iconSource: "qrc:/up.png"
+                onClicked: rotationModel.append({text: cbCombinations.currentText,
+                                                    addValue:1,
+                                                    value: ""})
+            }
+            Button {
+                id: btnAdd
+                //text: "Add New Item"
+                anchors.top: parent.top
+                anchors.topMargin: 0
+                anchors.left: btnPass.right
+                anchors.leftMargin: 0
+                iconSource: "qrc:/plus.png"
                 onClicked: rotationModel.append({text: cbCombinations.currentText,
                                                     addValue:1,
                                                     value: ""})
@@ -176,22 +192,24 @@ ApplicationWindow {
             Button {
                 id: btnRemove
                 x: 0
-                text: "Remove"
+                //text: "Remove item"
                 anchors.top: parent.top
                 anchors.topMargin: 0
                 anchors.left: btnAdd.right
+                iconSource: "qrc:/delete.png"
                 activeFocusOnPress: true
+                onClicked: rotationModel.remove(lvCombinations.currentIndex)
             }
 
-            Button {
-                id: btnToggle
-                x: 0
-                text: "Toggle"
-                anchors.top: parent.top
-                anchors.topMargin: 0
-                anchors.left: btnRemove.right
-                anchors.leftMargin: 0
-            }
+//            Button {
+//                id: btnToggle
+//                x: 0
+//                text: "Toggle"
+//                anchors.top: parent.top
+//                anchors.topMargin: 0
+//                anchors.left: btnRemove.right
+//                anchors.leftMargin: 0
+//            }
             ListModel {
                 id: rotationModel
             }
@@ -201,10 +219,75 @@ ApplicationWindow {
             DelegateModel{
                 id:visualModel
                 model: pathModel
-                delegate: pathDelegate
+                delegate: MouseArea {
+                    id: delegateRoot
+
+                    property int visualIndex: DelegateModel.itemsIndex
+
+                    width: parent.width; height: 20
+                    drag.target: icon
+
+                    Rectangle {
+                        id: icon
+                        width: 20; height: 20
+                        border.color: Qt.darker(color)
+                        anchors.left: parent.left
+                        color: "gray"
+                        radius: 3
+
+                        Drag.active: delegateRoot.drag.active
+                        Drag.source: delegateRoot
+                        Drag.hotSpot.x: width/2
+                        Drag.hotSpot.y: height/2
+                        anchors.verticalCenter: parent.verticalCenter
+                        states: [
+                            State {
+                                when: icon.Drag.active
+                                ParentChange {
+                                    target: icon
+                                    parent: lvPath
+                                }
+
+                                AnchorChanges {
+                                    target: icon;
+                                    anchors.horizontalCenter: undefined;
+                                    anchors.verticalCenter: undefined
+                                }
+                            }
+                        ]
+                    }
+                TextEdit {
+                    anchors{
+                        left:icon.right
+                    }
+                    id:txt1
+                    x:2
+                    text: value
+                    property bool markup: false
+                    color: "black"
+                    width: parent.width
+                    textFormat: TextEdit.AutoText
+                    anchors.verticalCenter: parent.verticalCenter
+                    onTextChanged:
+                    {
+                        if(!markup)
+                        {
+                            markup = true;
+                            var pos = cursorPosition;
+                            text = accessor.markup(txt1.textDocument);
+                            cursorPosition = pos;
+                            markup = false;
+                        }
+                    }
+                }
+                DropArea {
+                    anchors { fill: parent; margins: 1 }
+                    onEntered: visualModel.items.move(drag.source.visualIndex, delegateRoot.visualIndex)
+                }
             }
         }
-
-
     }
+
+
+}
 }

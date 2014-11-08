@@ -39,6 +39,10 @@ function loadItems() {
                         if(groups.indexOf(rs.rows.item(i).setname) == -1)
                             groups.push(rs.rows.item(i).setname);
                     }
+                    if(groups.length === 0)
+                    {
+                        groups.push("Default");
+                    }
                     cbCombinations.model = groups
                 }
                 )
@@ -80,7 +84,14 @@ function collectPATH()
     }
 }
 
-function markUp()
-{
 
+function createNewEnvironment()
+{
+    var result = "";
+    console.log("Items: ",pathModel.count)
+    for(var i = 0; i<  pathModel.count; i++)
+    {
+        console.log("Item: ", i, result)
+        result+=pathModel.get(i).value + ";"
+    }
 }
