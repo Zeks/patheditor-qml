@@ -65,15 +65,10 @@ ApplicationWindow {
                 anchors.topMargin: 0
                 model: visualModel
                 spacing: 2
-                delegate: pathDelegate
+                //delegate: pathDelegate
                 Component.onCompleted: {
                     Logic.collectPATH()
                 }
-                DropArea {
-                    anchors { fill: parent; margins: 2 }
-                    onEntered: visualModel.items.move(drag.source.visualIndex, lvPath.indexAt(drag.x,drag.y))
-                }
-
             }
             //            TextArea {
             //                id: pathEdit

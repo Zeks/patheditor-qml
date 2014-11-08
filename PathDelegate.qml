@@ -32,7 +32,10 @@ Component {
         Drag.hotSpot.y: 0
 
         MouseArea {
-
+            DropArea {
+                anchors { fill: parent; margins: 1 }
+                onEntered: visualModel.items.move(drag.source.visualIndex, pathDelegate.visualIndex)
+            }
             drag.target: txt1
             id: mouseArea
             anchors.fill: parent
