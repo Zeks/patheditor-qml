@@ -2,7 +2,6 @@ import QtQuick 2.0
 
     Component {
         id: rotationDelegate
-
         Row
         {
             spacing: 2
@@ -22,6 +21,15 @@ import QtQuick 2.0
                 }
             }
             Rectangle {
+                MouseArea{
+                    anchors.fill: parent
+                    propagateComposedEvents:true
+                    onClicked: {
+                        console.log("Index: " ,index)
+                        lvCombinations.currentIndex = index
+
+                    }
+                }
                 height:20
                 width: 500
                 TextEdit {
@@ -31,7 +39,9 @@ import QtQuick 2.0
                     anchors.verticalCenter: parent.verticalCenter
                     text: value
                     onTextChanged: rotationModel.setProperty(index, "value", text);
+
                 }
+
                 Text {
                     id:txtHint
                     x:5

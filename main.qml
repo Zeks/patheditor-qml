@@ -17,15 +17,16 @@ ApplicationWindow {
 
     Button {
         id: buttonSavePath
+        x: 720
         text: qsTr("Save PATH")
+        anchors.right: parent.right
+        anchors.rightMargin: 0
         z: 1
 //        height:90
 //        width:90
         iconSource: "qrc:/save.png"
         anchors.top: parent.top
         anchors.topMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 0
         onClicked: {
             accessor.set_environment(Logic.createNewEnvironment());
         }
@@ -124,7 +125,20 @@ ApplicationWindow {
             {
                 id:rotationDelegate
             }
-
+            Component {
+                id: highlight
+                Rectangle {
+                    width: 180; height: 40
+                    color: "lightsteelblue"; radius: 5
+                    y: lvCombinations.currentItem.y
+                    Behavior on y {
+                        SpringAnimation {
+                            spring: 3
+                            damping: 0.2
+                        }
+                    }
+                }
+            }
             ListView {
                 id: lvCombinations
                 anchors.right: parent.right
@@ -133,8 +147,17 @@ ApplicationWindow {
                 anchors.top: cbCombinations.bottom
                 model: rotationModel
                 spacing: 2
+                focus: true
                 delegate: rotationDelegate
+//                delegate: Rectangle{
+//                    border.color: "black"
+//                    width:80
+//                    height:20
+//                    anchors.left: parent.left
+//                }
                 signal modelReady
+//                highlight: highlight
+//                highlightFollowsCurrentItem: true
                 Component.onDestruction:
                 {
                     Logic.saveItems(rotationModel)
@@ -147,6 +170,7 @@ ApplicationWindow {
                     }
                     lvCombinations.modelReady()
                 }
+
 
             }
 
@@ -172,9 +196,7 @@ ApplicationWindow {
                 anchors.left: parent.left
                 anchors.leftMargin: 0
                 iconSource: "qrc:/up.png"
-                onClicked: rotationModel.append({text: cbCombinations.currentText,
-                                                    addValue:1,
-                                                    value: ""})
+                onClicked: Logic.applyCurrentGroup()
             }
             Button {
                 id: btnAdd
@@ -198,7 +220,10 @@ ApplicationWindow {
                 anchors.left: btnAdd.right
                 iconSource: "qrc:/delete.png"
                 activeFocusOnPress: true
-                onClicked: rotationModel.remove(lvCombinations.currentIndex)
+                onClicked: {
+                    //console.log("Selected: ",lvCombinations.currentIndex)
+                    rotationModel.remove(lvCombinations.currentIndex)
+                }
             }
 
 //            Button {
@@ -221,9 +246,10 @@ ApplicationWindow {
                 model: pathModel
                 delegate: MouseArea {
                     id: delegateRoot
-
+                    z:0
                     property int visualIndex: DelegateModel.itemsIndex
-
+//                    propagateComposedEvents: true
+//                    onClicked: mouse.accepted = false
                     width: parent.width; height: 20
                     drag.target: icon
 
@@ -256,18 +282,24 @@ ApplicationWindow {
                             }
                         ]
                     }
-                TextEdit {
+                Rectangle{
                     anchors{
+                        right:parent.right
                         left:icon.right
+                        bottom:parent.bottom
+                        top:parent.top
                     }
+                    height: txt1.height
+
+                    TextEdit {
                     id:txt1
-                    x:2
+                    anchors.fill:parent
                     text: value
                     property bool markup: false
                     color: "black"
-                    width: parent.width
+                    //width: parent.width
                     textFormat: TextEdit.AutoText
-                    anchors.verticalCenter: parent.verticalCenter
+                    //anchors.verticalCenter: parent.verticalCenter
                     onTextChanged:
                     {
                         if(!markup)
@@ -279,15 +311,48 @@ ApplicationWindow {
                             markup = false;
                         }
                     }
+
+                 }
                 }
+                MouseArea {
+                    z:2
+                    anchors.fill: parent
+                    propagateComposedEvents: true
+                    onClicked: {
+                        console.log(index)
+                        mouse.accepted = false
+                    }
+                }
+
                 DropArea {
                     anchors { fill: parent; margins: 1 }
                     onEntered: visualModel.items.move(drag.source.visualIndex, delegateRoot.visualIndex)
                 }
+                }
             }
         }
+
+
     }
 
+    Button {
+        id: btnAddPathToken
+        anchors.top: parent.top
+        anchors.topMargin: 1
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        iconSource: "qrc:/plus.png"
+        onClicked: pathModel.insert(0,{value: "replace me"})
 
-}
+    }
+    Button {
+        id: btnDeletePathToken
+        anchors.top: parent.top
+        anchors.topMargin: 1
+        anchors.left: btnAddPathToken.right
+        anchors.leftMargin: 0
+        iconSource: "qrc:/delete.png"
+        onClicked: pathModel.remove(lvPath.currentIndex)
+
+    }
 }

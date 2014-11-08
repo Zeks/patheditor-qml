@@ -14,7 +14,7 @@ function saveItems() {
                         var exists = tx.executeSql('Select * from ROTATIONSETS where setname = ? and setoperation = ? and setfolder = ?',
                                                    [rotationModel.get(i).text, rotationModel.get(i).addValue, rotationModel.get(i).value]);
                         console.log(exists.rows)
-                        if(exists.rows.length === 0)
+                        if(exists.rows.length === 0 && rotationModel.get(i).value.length > 0)
                         {
                             tx.executeSql('INSERT INTO ROTATIONSETS VALUES(?, ?, ?)',
                                           [rotationModel.get(i).text, parseInt(rotationModel.get(i).addValue), rotationModel.get(i).value]);
@@ -93,5 +93,46 @@ function createNewEnvironment()
     {
         console.log("Item: ", i, result)
         result+=pathModel.get(i).value + ";"
+    }
+    return result
+}
+
+function applyCurrentGroup(){
+    console.log("Items: ",rotationModel.count)
+    var groupToAdd = []
+    var groupToRemove = []
+    var store = []
+    for(var i = 0; i<  pathModel.count; i++)
+    {
+        store.push(pathModel.get(i).value)
+    }
+    for(i = 0; i<  rotationModel.count; i++)
+    {
+        if(rotationModel.get(i).addValue === 0)
+        {
+            groupToRemove.push(rotationModel.get(i).value)
+        }
+        else
+            groupToAdd.push(rotationModel.get(i).value)
+    }
+    console.log("Path items: ", store)
+    console.log("Remove items: ", groupToRemove)
+    i = groupToRemove.length-1
+    console.log("remove size: ",i)
+    for(; i >  -1; i--)
+    {
+        console.log("Removing: ", groupToRemove[i])
+        store.splice(store.indexOf(groupToRemove[i]),1)
+    }
+    console.log(store)
+    for(i = 0; i<  groupToAdd.length; i++)
+    {
+        store.unshift(groupToAdd[i])
+    }
+    pathModel.clear()
+    for(var i in store)
+    {
+        console.log("New item: ",i," " ,store[i])
+        pathModel.append({"value": store[i]})
     }
 }
