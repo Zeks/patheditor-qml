@@ -6,10 +6,11 @@ Component {
         //anchors.fill: parent
         property int visualIndex: DelegateModel.itemsIndex
         y: 2
-        x:5
+        anchors{
+            left:parent.left
+        }
         id:txt1
         text: value
-        property string colorKey
         property bool markup: false
         color: "black"
         width: parent.width
@@ -26,35 +27,20 @@ Component {
                 markup = false;
             }
         }
-        Drag.keys: [ colorKey ]
         Drag.active: mouseArea.drag.active
-        Drag.hotSpot.x: 0
-        Drag.hotSpot.y: 0
+        Drag.hotSpot.x: width/2
+        Drag.hotSpot.y: height/2
 
         MouseArea {
-            DropArea {
-                anchors { fill: parent; margins: 1 }
-                onEntered: visualModel.items.move(drag.source.visualIndex, pathDelegate.visualIndex)
-            }
             drag.target: txt1
             id: mouseArea
             anchors.fill: parent
-            onReleased: parent = tile.Drag.target !== null ? tile.Drag.target : lvPath
-            Rectangle {
-                id: tile
-                anchors.fill: parent
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                color: "transparent"
-
-
-                states: State {
-                    when: mouseArea.drag.active
-                    ParentChange { target: txt1; parent: lvPath }
-                    AnchorChanges { target: txt1; anchors.verticalCenter: undefined; anchors.horizontalCenter: undefined }
-                }
-
+        }
+        DropArea {
+            anchors { fill: pathDelegate;}
+            onEntered: {
+                console.log("entered droparea")
+                visualModel.items.move(drag.source.visualIndex, pathDelegate.visualIndex)
             }
         }
         states: [
