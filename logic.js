@@ -62,3 +62,25 @@ function setGroup()
                 }
                 )
 }
+
+function cutPath(fullEnvironment){
+    var rxStart = /\n(PATH=[\w\d\\\.:;\s\(\)-]+\n)/;
+    var matchStart = rxStart.exec(fullEnvironment);
+    return matchStart[0].replace(/;/g, ";\n");
+}
+
+function collectPATH()
+{
+    var env = accessor.get_environment().split(";");
+    //console.log(env)
+    for(var i in env)
+    {
+        console.log(i," " ,env[i])
+        pathModel.append({"value": env[i]})
+    }
+}
+
+function markUp()
+{
+
+}

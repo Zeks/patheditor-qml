@@ -25,24 +25,19 @@ public:
         qDebug() << "Passed : " << text;
         text=text.replace(";", "\n");
         QStringList folders = text.split(QRegExp("\n"));
-        QString result;
-        QString failed = "<font color='red'>%1</font><br>";
-        QString newFolders = "<font color='green'>%1</font><br>";
+        QString black = "<font color='black'>%1</font>";
+        QString failed = "<font color='red'>%1</font>";
+        QString newFolders = "<font color='green'>%1</font>";
         for(QString folder : folders)
         {
             if(folder[0] != '%' && !QDir(folder.replace(";","")).exists())
-            {
-                result+=failed.arg(folder);
-                continue;
-            }
+                return failed.arg(folder);
+
             if(!loadedFolders.contains(folder))
-            {
-                result+=newFolders.arg(folder);
-                continue;
-            }
-            result+=folder+"<br>";
+                return newFolders.arg(folder);
+            return black.arg(folder);
         }
-        return result;
+        return QString();
     }
 
     Q_INVOKABLE void set_environment(QQuickTextDocument* doc)

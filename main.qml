@@ -3,7 +3,7 @@ import QtQuick.Controls 1.2
 import com.sysgetter 1.0
 import QtQuick.LocalStorage 2.0
 import "qrc:/logic.js" as Logic
-
+import QtQml.Models 2.1
 ApplicationWindow {
     id: applicationWindow1
     visible: true
@@ -53,9 +53,8 @@ ApplicationWindow {
             z: 3
             border.color: "black"
 
-            TextArea {
-                id: pathEdit
-                text: accessor.get_environment()
+            ListView {
+                id: lvPath
                 anchors.right: parent.right
                 anchors.rightMargin: 0
                 anchors.bottom: parent.bottom
@@ -64,28 +63,47 @@ ApplicationWindow {
                 anchors.leftMargin: 0
                 anchors.top: parent.top
                 anchors.topMargin: 0
-                z: 0
-                font.pixelSize: 12
-                wrapMode: TextEdit.WordWrap
-                textFormat: TextEdit.RichText
-                property bool marking
-                y: 0
-                function cutPath(fullEnvironment){
-                    var rxStart = /\n(PATH=[\w\d\\\.:;\s\(\)-]+\n)/;
-                    var matchStart = rxStart.exec(fullEnvironment);
-                    return matchStart[0].replace(/;/g, ";\n");
+                model: visualModel
+                spacing: 2
+                delegate: pathDelegate
+                Component.onCompleted: {
+                    Logic.collectPATH()
                 }
-                onTextChanged: {
-                    if(!marking)
-                    {
-                        marking = true;
-                        var pos = cursorPosition;
-                        text = accessor.markup(textDocument);
-                        cursorPosition = pos;
-                        marking = false;
-                    }
+                DropArea {
+                    anchors { fill: parent; margins: 2 }
+                    onEntered: visualModel.items.move(drag.source.visualIndex, lvPath.indexAt(drag.x,drag.y))
                 }
+
             }
+            //            TextArea {
+            //                id: pathEdit
+            //                text: accessor.get_environment()
+            //                anchors.right: parent.right
+            //                anchors.rightMargin: 0
+            //                anchors.bottom: parent.bottom
+            //                anchors.bottomMargin: 0
+            //                anchors.left: parent.left
+            //                anchors.leftMargin: 0
+            //                anchors.top: parent.top
+            //                anchors.topMargin: 0
+            //                z: 0
+            //                font.pixelSize: 12
+            //                wrapMode: TextEdit.WordWrap
+            //                textFormat: TextEdit.RichText
+            //                property bool marking
+            //                y: 0
+
+            //                onTextChanged: {
+            //                    if(!marking)
+            //                    {
+            //                        marking = true;
+            //                        var pos = cursorPosition;
+            //                        text = accessor.markup(textDocument);
+            //                        cursorPosition = pos;
+            //                        marking = false;
+            //                    }
+            //                }
+            //            }
         }
 
         Rectangle {
@@ -104,7 +122,10 @@ ApplicationWindow {
             {
                 id:rotationDelegate
             }
-
+            PathDelegate
+            {
+                id:pathDelegate
+            }
             ListView {
                 id: lvCombinations
                 anchors.right: parent.right
@@ -178,6 +199,14 @@ ApplicationWindow {
             }
             ListModel {
                 id: rotationModel
+            }
+            ListModel {
+                id: pathModel
+            }
+            DelegateModel{
+                id:visualModel
+                model: pathModel
+                delegate: pathDelegate
             }
         }
 
