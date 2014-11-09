@@ -8,6 +8,7 @@ function saveItems() {
                 function(tx) {
                     // Create the database if it doesn't already exist
                     tx.executeSql('CREATE TABLE IF NOT EXISTS ROTATIONSETS(setname TEXT, setoperation NUMBER, setfolder TEXT)');
+                    tx.executeSql('delete from ROTATIONSETS');
                     console.log(rotationModel.count)
                     for(var i = 0; i < rotationModel.count; i++)
                     {

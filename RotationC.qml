@@ -21,15 +21,7 @@ import QtQuick 2.0
                 }
             }
             Rectangle {
-                MouseArea{
-                    anchors.fill: parent
-                    propagateComposedEvents:true
-                    onClicked: {
-                        console.log("Index: " ,index)
-                        lvCombinations.currentIndex = index
 
-                    }
-                }
                 height:20
                 width: 500
                 TextEdit {
@@ -39,6 +31,7 @@ import QtQuick 2.0
                     anchors.verticalCenter: parent.verticalCenter
                     text: value
                     onTextChanged: rotationModel.setProperty(index, "value", text);
+                    onCursorPositionChanged: lvCombinations.currentIndex = index
 
                 }
 

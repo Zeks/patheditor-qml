@@ -248,8 +248,6 @@ ApplicationWindow {
                     id: delegateRoot
                     z:0
                     property int visualIndex: DelegateModel.itemsIndex
-//                    propagateComposedEvents: true
-//                    onClicked: mouse.accepted = false
                     width: parent.width; height: 20
                     drag.target: icon
 
@@ -311,17 +309,9 @@ ApplicationWindow {
                             markup = false;
                         }
                     }
+                    onCursorPositionChanged: lvPath.currentIndex=index
 
                  }
-                }
-                MouseArea {
-                    z:2
-                    anchors.fill: parent
-                    propagateComposedEvents: true
-                    onClicked: {
-                        console.log(index)
-                        mouse.accepted = false
-                    }
                 }
 
                 DropArea {
