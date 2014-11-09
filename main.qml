@@ -22,8 +22,6 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.rightMargin: 0
         z: 1
-//        height:90
-//        width:90
         iconSource: "qrc:/save.png"
         anchors.top: parent.top
         anchors.topMargin: 0
@@ -73,40 +71,10 @@ ApplicationWindow {
                 model: visualModel
                 spacing: 2
                 clip:true
-                //delegate: pathDelegate
                 Component.onCompleted: {
                     Logic.collectPATH()
                 }
             }
-            //            TextArea {
-            //                id: pathEdit
-            //                text: accessor.get_environment()
-            //                anchors.right: parent.right
-            //                anchors.rightMargin: 0
-            //                anchors.bottom: parent.bottom
-            //                anchors.bottomMargin: 0
-            //                anchors.left: parent.left
-            //                anchors.leftMargin: 0
-            //                anchors.top: parent.top
-            //                anchors.topMargin: 0
-            //                z: 0
-            //                font.pixelSize: 12
-            //                wrapMode: TextEdit.WordWrap
-            //                textFormat: TextEdit.RichText
-            //                property bool marking
-            //                y: 0
-
-            //                onTextChanged: {
-            //                    if(!marking)
-            //                    {
-            //                        marking = true;
-            //                        var pos = cursorPosition;
-            //                        text = accessor.markup(textDocument);
-            //                        cursorPosition = pos;
-            //                        marking = false;
-            //                    }
-            //                }
-            //            }
         }
 
         Rectangle {
@@ -149,15 +117,7 @@ ApplicationWindow {
                 spacing: 2
                 focus: true
                 delegate: rotationDelegate
-//                delegate: Rectangle{
-//                    border.color: "black"
-//                    width:80
-//                    height:20
-//                    anchors.left: parent.left
-//                }
                 signal modelReady
-//                highlight: highlight
-//                highlightFollowsCurrentItem: true
                 Component.onDestruction:
                 {
                     Logic.saveItems(rotationModel)
@@ -170,8 +130,6 @@ ApplicationWindow {
                     }
                     lvCombinations.modelReady()
                 }
-
-
             }
 
             ComboBox {
@@ -221,20 +179,9 @@ ApplicationWindow {
                 iconSource: "qrc:/delete.png"
                 activeFocusOnPress: true
                 onClicked: {
-                    //console.log("Selected: ",lvCombinations.currentIndex)
                     rotationModel.remove(lvCombinations.currentIndex)
                 }
             }
-
-//            Button {
-//                id: btnToggle
-//                x: 0
-//                text: "Toggle"
-//                anchors.top: parent.top
-//                anchors.topMargin: 0
-//                anchors.left: btnRemove.right
-//                anchors.leftMargin: 0
-//            }
             ListModel {
                 id: rotationModel
             }
@@ -295,9 +242,7 @@ ApplicationWindow {
                     text: value
                     property bool markup: false
                     color: "black"
-                    //width: parent.width
                     textFormat: TextEdit.AutoText
-                    //anchors.verticalCenter: parent.verticalCenter
                     onTextChanged:
                     {
                         if(!markup)
@@ -309,8 +254,16 @@ ApplicationWindow {
                             markup = false;
                         }
                     }
-                    onCursorPositionChanged: lvPath.currentIndex=index
-
+                    MouseArea
+                    {
+                        anchors.fill: parent
+                        onClicked: {
+                            console.log("ferv")
+                            lvPath.currentIndex=index
+                            txt1.forceActiveFocus()
+                            txt1.cursorPosition=txt1.positionAt(mouse.x,mouse.y)
+                        }
+                    }
                  }
                 }
 
@@ -321,8 +274,6 @@ ApplicationWindow {
                 }
             }
         }
-
-
     }
 
     Button {

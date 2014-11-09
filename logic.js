@@ -81,7 +81,8 @@ function collectPATH()
     for(var i in env)
     {
         console.log(i," " ,env[i])
-        pathModel.append({"value": env[i]})
+        if(env[i].trim().length>0)
+            pathModel.append({"value": env[i]})
     }
 }
 

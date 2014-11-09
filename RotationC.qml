@@ -31,7 +31,16 @@ import QtQuick 2.0
                     anchors.verticalCenter: parent.verticalCenter
                     text: value
                     onTextChanged: rotationModel.setProperty(index, "value", text);
-                    onCursorPositionChanged: lvCombinations.currentIndex = index
+                    MouseArea
+                    {
+                        anchors.fill: parent
+                        onClicked: {
+                            lvCombinations.currentIndex=index
+                            txt.forceActiveFocus()
+                            txt.cursorPosition=txt.positionAt(mouse.x,mouse.y)
+                        }
+                    }
+
 
                 }
 
