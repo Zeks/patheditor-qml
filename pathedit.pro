@@ -2,6 +2,17 @@ TEMPLATE = app
 
 QT += qml quick widgets
 
+# Doesn't work with mingw
+# QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
+
+CONFIG(debug, debug|release) {
+    DEBUG_OR_RELEASE = debug
+}else {
+    DEBUG_OR_RELEASE = release
+}
+
+QMAKE_POST_LINK = "$$PWD/post-link.bat $$PWD $$DEBUG_OR_RELEASE"
+
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc
